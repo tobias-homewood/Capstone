@@ -1,0 +1,61 @@
+{% extends "index.html" %} 
+{% block content %}
+<h2>{{ user.username }}</h2>
+<p>Email: {{ user.email }}</p>
+<p>Bio: {{ user.bio }}</p>
+<div class="image-container">
+    <img src="{{ image_url }}" alt="User image">
+</div>
+<p>Image URL: {{ image_url }}</p>
+<!-- Favourite Boards -->
+<h3>Favourite Boards</h3>
+{% if user.favourite_boards %}
+    <ul>
+    {% for board in user.favourite_boards %}
+        <li>
+            {{ board.board_manufacturer }} - {{ board.model }}
+            <!-- Favourite form -->
+            <form class="favourite-form" method="POST" action="{{ url_for('toggle_favourite', board_id=board.board_id) }}" style="margin-left: 10px; display: inline;" data-board-id="{{ board.board_id }}">
+                {{ form.csrf_token }}
+                <button type="submit" class="btn btn-link p-0 m-0 align-baseline">
+                    <i class="bi {% if board in current_user.favourite_boards %}bi-heart-fill text-red{% else %}bi-heart{% endif %}"></i>
+                </button>
+            </form>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No favourite boards yet.</p>
+{% endif %}
+<!-- My Boards -->
+{% if current_user.id == user.id %}
+    <h3>My Boards</h3>
+    {% if user.user_boards %}
+        <ul>
+        {% for board in user.user_boards %}
+            <li>
+                {{ board.board_manufacturer }} - {{ board.model }}
+                <!-- Favourite form -->
+                {% if current_user.id != board.user_id %}
+                    <!-- Favourite form -->
+                    <form class="favourite-form" method="POST" action="{{ url_for('toggle_favourite', board_id=board.board_id) }}" data-board-id="{{ board.board_id }}">
+                        {{ form.csrf_token }}
+                        <button type="submit" class="btn btn-link p-0 m-0 align-baseline">
+                            <i class="bi {% if board in current_user.favourite_boards %}bi-heart-fill text-red{% else %}bi-heart{% endif %}"></i> <!-- Heart icon, filled if the board is a favourite -->
+                        </button>
+                    </form>
+                {% endif %}
+                <!-- Delete form -->
+                {% if current_user.id == board.user_id %}
+                    <form class="delete-form" method="POST" action="{{ url_for('delete_board', board_id=board.board_id) }}">
+                        <input type="submit" value="Delete" /> <!-- Delete button -->
+                    </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No boards uploaded yet.</p>
+    {% endif %}
+{% endif %}
+{% endblock %}

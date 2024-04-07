@@ -1,0 +1,108 @@
+{% extends "index.html" %} <!-- This template extends from index.html -->
+
+{% block title %}Search Boards{% endblock %} <!-- Title of the page -->
+
+{% block content %} <!-- Content of the page starts here -->
+    
+    <button id="filters">Show / Hide Filters</button> <!-- Button for showing/hiding filters -->
+
+    <div id="filter-form" style="display: none;"> <!-- Filter form, initially hidden -->
+        <form method="GET" action="{{ url_for('search_boards') }}"> <!-- Form action is the search_boards route -->
+            {{ form.hidden_tag() }} <!-- CSRF token for form -->
+            <div class=form-drop-down-container>
+                <div class="left"> <!-- Left side of the form -->
+                    {{ form.sell_or_rent.label }} {{ form.sell_or_rent() }}<br />
+                    {{ form.board_location.label }} {{ form.board_location() }}<br />
+                    {{ form.board_manufacturer.label }} {{ form.board_manufacturer() }}<br />
+                    {{ form.model.label }} {{ form.model() }}<br />
+                </div>
+                <div class="right"> <!-- Right side of the form -->
+                    {{ form.condition.label }} {{ form.condition() }}<br />
+                    {{ form.delivery_options.label }} {{ form.delivery_options() }}<br />
+                </div>
+            </div>
+            <!-- The following sections are for price, length, width, depth, and volume filters with sliders -->
+            <!-- Each section has a visible label, a slider, and two hidden inputs for the min and max values -->
+            <!-- The min and max values are either from the session or default values -->
+
+            <!-- Price filter -->
+            <p id="price-value">Price: 0 - 1000</p>
+            <div id="price-slider" data-min-price="{{ session['min_price'] or 0 }}" data-max-price="{{ session['max_price'] or 2000 }}"></div>
+            <input type="hidden" id="min-price" name="min_price" value="{{ form.min_price.data|default(0) }}">
+            <input type="hidden" id="max-price" name="max_price" value="{{ form.max_price.data|default(2000) }}">
+            
+            <!-- Length filter -->
+            <p id="length-value">Length: 0 - 200</p>
+            <div id="length-slider" data-min-length="{{ session['min_length'] or 0 }}" data-max-length="{{ session['max_length'] or 180 }}"></div>
+            <input type="hidden" id="min-length" name="min_length" value="{{ form.min_length.data|default(0) }}">
+            <input type="hidden" id="max-length" name="max_length" value="{{ form.max_length.data|default(180) }}">
+
+            <!-- Width filter -->
+            <p id="width-value">Width: 0 - 100</p>
+            <div id="width-slider" data-min-width="{{ session['min_width'] or 0 }}" data-max-width="{{ session['max_width'] or 30 }}"></div>
+            <input type="hidden" id="min-width" name="min_width" value="{{ form.min_width.data|default(0) }}">
+            <input type="hidden" id="max-width" name="max_width" value="{{ form.max_width.data|default(30) }}">
+
+            <!-- Depth filter -->
+            <p id="depth-value">Depth: 0 - 200</p> <!-- Update the range here -->
+            <div id="depth-slider" data-min-depth="{{ session['min_depth'] or 0 }}" data-max-depth="{{ session['max_depth'] or 5 }}"></div>
+            <input type="hidden" id="min-depth" name="min_depth" value="{{ form.min_depth.data|default(0) }}">
+            <input type="hidden" id="max-depth" name="max_depth" value="{{ form.max_depth.data|default(5) }}">
+            
+            <!-- Volume filter -->
+            <p id="volume-value">Volume: 0 - 100</p>
+            <div id="volume-slider" data-min-volume="{{ session['min_volume'] or 0 }}" data-max-volume="{{ session['max_volume'] or 100 }}"></div>
+            <input type="hidden" id="min-volume" name="min_volume" value="{{ form.min_volume.data|default(0) }}">
+            <input type="hidden" id="max-volume" name="max_volume" value="{{ form.max_volume.data|default(100) }}">
+            
+            <div class="button-container">
+                <button class="btn btn-success search" type="submit">Search</button> <!-- Search button -->
+            </div>        
+        </form>
+    </div>
+
+    <!-- Display the boards -->
+    <div id="board-container">
+        {% for board in boards %} <!-- Loop through each board in the boards list -->
+        <div class="board">
+            <div class="board-header">
+                
+                <h2 class="board-title">{{ board.board_manufacturer }} - {{ board.model }}</h2> <!-- Board title -->
+                <div class="board-main-info">
+                    <p class="board-data">€{{ board.asking_price }}</p>
+                    <p class="board-data">Length: {{ board.board_length_feet }}' {{ board.board_length_inches }}"</p> 
+                </div>
+                {% if current_user.id != board.user_id %}
+                    <!-- Favourite form -->
+                    <form class="favourite-form" method="POST" action="{{ url_for('toggle_favourite', board_id=board.board_id) }}" data-board-id="{{ board.board_id }}">
+                        {{ form.csrf_token }}
+                        <button type="submit" class="btn btn-link p-0 m-0 align-baseline">
+                            <i class="bi {% if board in current_user.favourite_boards %}bi-heart-fill text-red{% else %}bi-heart{% endif %}"></i> <!-- Heart icon, filled if the board is a favourite -->
+                        </button>
+                    </form>
+                {% endif %}
+                <!-- Delete form -->
+                {% if current_user.id == board.user_id %}
+                    <form class="delete-form" method="POST" action="{{ url_for('delete_board', board_id=board.board_id) }}">
+                        <input type="submit" value="Delete" /> <!-- Delete button -->
+                    </form>
+                {% endif %}
+            </div>
+            <div class="surfboard-search-container">
+                <img src="{{ board.main_photo }}" class="surfboard-search board-image" alt="Board Image">
+            </div>
+            <!-- Display board data --> 
+            <p class="board-data">Condition: {{ board.condition }}</p>
+            <p class="board-data">Sell or Rent: {{ board.sell_or_rent }}</p>
+            <p class="board-data">Location: {{ board.board_location }}</p>
+            <p class="board-data">Delivery Options: {{ board.delivery_options }}</p>
+            <p class="board-data">Width: {{ board.width_integer }} {{ convert_decimal_to_fraction(board.width_fraction) }}</p>
+            <p class="board-data">Depth: {{ board.depth_integer }} {{ convert_decimal_to_fraction(board.depth_fraction) }}</p>
+            <p class="board-data">Volume: {{ board.volume_litres }} litres</p>
+            <p class="board-data">Extra Details: {{ board.extra_details }}</p>
+            <p class="board-data">Added by: <a href="{{ url_for('user_profile', username=board.user.username) }}">{{ board.user.username }}</a></p>
+        </div>
+        {% endfor %}
+    </div>
+    
+{% endblock %} <!-- Content of the page ends here -->

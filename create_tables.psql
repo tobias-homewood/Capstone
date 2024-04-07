@@ -1,0 +1,98 @@
+-- Drop tables if they exist (for testing purposes)
+DROP TABLE IF EXISTS search_preferences, messages, boards, users, favourites CASCADE;
+
+-- Create Users table
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    user_password VARCHAR(255) NOT NULL,
+    image_url TEXT DEFAULT '/static/images/default-pic.png',
+    bio TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO users (id, username, email, user_password)
+VALUES (1, 'TestUser', 'testuser@example.com', 'testpassword');
+
+-- Create Boards table 
+CREATE TABLE boards (
+    board_id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    asking_price DECIMAL,
+    board_manufacturer VARCHAR(255),
+    board_length_feet INTEGER,
+    board_length_inches INTEGER,
+    board_length_total INTEGER,
+    condition VARCHAR(50),
+    sell_or_rent VARCHAR(20),
+    board_location VARCHAR(255),
+    delivery_options VARCHAR(50),
+    model VARCHAR(255),
+    width_integer INTEGER,
+    width_fraction VARCHAR(5),
+    width_total DECIMAL,
+    depth_integer INTEGER,
+    depth_fraction VARCHAR(5),
+    depth_total DECIMAL,
+    volume_litres INTEGER,
+    extra_details VARCHAR(255),
+    main_photo TEXT,  -- New field
+    extra_photos JSON,  -- New field
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Favourites table
+CREATE TABLE favourites (
+    user_id INTEGER REFERENCES users(id),
+    board_id INTEGER REFERENCES boards(board_id),
+    PRIMARY KEY (user_id, board_id)
+);
+
+-- Create Messages table
+CREATE TABLE messages (
+    message_id SERIAL PRIMARY KEY,
+    sender_id INTEGER REFERENCES users(id),
+    receiver_id INTEGER REFERENCES users(id),
+    board_id INTEGER REFERENCES boards(board_id),
+    message_content TEXT,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create SearchPreferences table
+CREATE TABLE search_preferences (
+    search_id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    board_type VARCHAR(255),
+    condition VARCHAR(50),
+    board_location VARCHAR(255),
+    max_price DECIMAL,
+    min_price DECIMAL,
+    board_manufacturer VARCHAR(255),
+    board_length_feet INTEGER,
+    board_length_inches INTEGER,
+    min_length INTEGER,
+    max_length INTEGER,
+    board_length_total INTEGER,
+    sell_or_rent VARCHAR(20),
+    model VARCHAR(255),
+    width_integer INTEGER,
+    width_fraction VARCHAR(5),
+    min_width DECIMAL,
+    max_width DECIMAL,
+    width_total DECIMAL,
+    depth_integer INTEGER,
+    depth_fraction VARCHAR(5),
+    min_depth DECIMAL,
+    max_depth DECIMAL,
+    depth_total DECIMAL,
+    volume_litres INTEGER,
+    min_volume INTEGER,
+    max_volume INTEGER,
+    main_photo TEXT,  -- New field
+    extra_photos JSON,  -- New field
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

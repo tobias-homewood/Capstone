@@ -1,0 +1,198 @@
+/* General body styling */
+body{
+    padding-top: 80px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.navbar{
+    padding: 2px !important;
+}
+.navbar-content {
+    flex-direction: column;
+    justify-content: flex-end; /* Align items to the end */
+    padding: 5px !important;
+}
+
+.navbar-brand {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px;
+}
+
+.navbar-text {
+    font-size: 0.8em; /* Adjust to change the text size */
+    order: 2; /* Move the text to the end of the flex container */
+    padding: 5px !important;
+    text-align: right;
+}
+
+@media (min-width: 681px) {
+    .navbar-brand {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-right: 0; /* Reset the margin-right property */
+    }
+}
+.navbar-brand-wrapper {
+    width: 100%; /* Make the wrapper take up the full width of the parent */
+}
+
+@media (max-width: 680px) { /* Adjust this value as needed */
+   
+
+    .navbar-brand-wrapper {
+        text-align: right; /* Align the content of the wrapper to the right */
+    }
+
+    .navbar-brand {
+        position: static;
+        margin-right: 0 !important ; /* Reset the margin-right property */
+        order: 1; /* Make the brand appear below the text */
+    }
+
+    .navbar-text {
+        order: 2; /* Make the text appear above the brand */
+    }
+}
+
+.navbar-toggler {
+    width: 30px; /* Adjust the width of the button */
+    height: 30px; /* Adjust the height of the button */
+    font-size: 1.5em;
+    display: flex; /* Add this */
+    align-items: center; /* Add this */
+    justify-content: center; /* Add this */
+}
+
+.navbar-toggler-icon {
+    background-image: none !important;
+}
+
+.navbar-toggler::before {
+    content: '☰';
+    font-size: 1.5em;
+    line-height: 1; /* Add this */
+    margin-top: -9px; /* Add this */
+}
+
+/* Styling for the heart icon */
+.text-red {
+    color: red;
+}
+
+.bi-heart.favourite {
+    color: red;
+}
+
+/* Styling for the board container */
+#board-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Styling for each board */
+.board {
+    flex: 1 0 33%; /* Allows 3 boards per row */
+    max-width: 33%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Styling for the board header */
+.board-header {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* Styling for the board title */
+.board-title {
+    font-size: 0.8em; /* Adjust to change the text size */
+    margin-bottom: 1px;
+}
+
+/* Styling for the favourite and delete forms */
+.favourite-form,
+.delete-form {
+    margin-left: 10px;
+    display: inline;
+}
+
+/* Styling for the board data */
+.board-data {
+    font-size: 0.5em; /* Adjust to change the text size */
+    margin: 3px;
+}
+
+/* Styling for the sliders */
+#price-value, #price-slider, #length-value, #length-slider, #width-value, #width-slider, #depth-value, #depth-slider, #volume-value, #volume-slider {
+    margin: 8px !important;
+}
+
+.ui-slider-handle {
+    height: 1em !important; /* Adjust to change the height */
+}
+
+.ui-slider .ui-slider-range,
+.ui-slider {
+    height: 10px !important; /* Adjust to change the height */
+}
+
+/* Styling for the form drop down container */
+.form-drop-down-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.left, .right {
+    flex: 1;
+}
+
+/* Styling for the button container */
+.button-container {
+    display: flex;
+    justify-content: center;
+}
+
+/* Styling for the h1 tag */
+h1{
+    font-size: 30px;
+    font-weight: bold;
+    margin: 5px;
+    text-align: center;
+}
+
+/* Styling for the image container */
+.image-container img {
+    max-width: 200px;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+}
+.board-main-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.surfboard-search-container {
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+}
+
+.surfboard-search.board-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* This will make the image shrink to fit the container while maintaining its aspect ratio */
+}
+
+#map {
+    width: 80%;
+    height: 300px;
+    padding: 20px;
+}

@@ -1,0 +1,70 @@
+{% extends "index.html" %}
+
+    {% block title %}Search Boards{% endblock %}
+    {% block content %}
+    <body>
+        <h1>List Your Board</h1>
+        {% with messages = get_flashed_messages() %} {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %} {% endwith %}
+        <form method="POST" action="{{ url_for('list_board') }}" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div>
+                {{ form.asking_price.label }} {{ form.asking_price() }}
+            </div>
+            <div>
+                {{ form.board_manufacturer.label }} {{ form.board_manufacturer() }}
+            </div>
+            <div>
+                <label>Board Length</label>
+                {{ form.board_length_feet() }} Feet
+                {{ form.board_length_inches() }} Inches
+            </div>
+            <div>
+                {{ form.condition.label }} {{ form.condition() }}
+            </div>
+            <div>
+                {{ form.sell_or_rent.label }} {{ form.sell_or_rent() }}
+            </div>
+            <div>
+                {{ form.board_location.label }} {{ form.board_location() }}
+            </div>
+            <div>
+                {{ form.delivery_options.label }} {{ form.delivery_options() }}
+            </div>
+            <div>
+                {{ form.model.label }} {{ form.model() }}
+            </div>
+            <div>
+                <label>Width</label>
+                {{ form.width_integer() }}
+                {{ form.width_fraction() }}
+            </div>
+            <div>
+                <label>Depth</label>
+                {{ form.depth_integer() }}
+                {{ form.depth_fraction() }}
+            </div>
+            <div>
+                {{ form.volume_litres.label }} {{ form.volume_litres() }}
+            </div>
+            <div>
+                {{ form.extra_details.label }} {{ form.extra_details() }}
+            </div>
+            <div>
+                {{ form.main_photo.label }} {{ form.main_photo() }}
+            </div>
+            <div>
+                {{ form.extra_photos.label }} {{ form.extra_photos() }}
+            </div>
+            <div>
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    </body>
+    {% endblock %}
+</html>
