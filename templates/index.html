@@ -71,7 +71,7 @@
                             <a href="{{ url_for('logout') }}">Logout</a>
                             {% else %}
                             <a href="{{ url_for('login') }}">Login</a> |
-                            <a href="{{ url_for('signup') }}">Signup</a>
+                            <a href="{{ url_for('signup') }}">Create an account</a>
                             {% endif %}
                         </small>
                         <p style="margin: 0">
@@ -137,23 +137,28 @@
                 </div>
             </div>
         </nav>
-        <div class="collapse" id="mapContainer">
-            <div id="map" data-mapbox-api-key="{{ MAPBOX_API_KEY }}"></div>
+        <div id="mapWrapper">
+            <div class="collapse" id="mapContainer">
+                <div id="map" data-mapbox-api-key="{{ MAPBOX_API_KEY }}"></div>
+            </div>
         </div>
+        <div class="content">
         {% with messages = get_flashed_messages() %} {% if messages %}
         <ul>
             {% for message in messages %}
             <li>{{ message }}</li>
             {% endfor %}
         </ul>
-        {% endif %} {% endwith %} {% block content %}
+        {% endif %} {% endwith %} 
+        
+        {% block content %}
         <p>
             Connect with buyers and sellers to find the perfect board for you.
         </p>
         <p><a href="{{ url_for('list_board') }}">List a Board</a></p>
         <p><a href="{{ url_for('search_boards') }}">Search Boards</a></p>
         {% endblock %}
-
+        </div>
         <script src="{{ url_for('static', filename='js/main.js') }}"></script>
         <script src="{{ url_for('static', filename='js/map.js') }}"></script>
         <script
