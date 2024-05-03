@@ -4,13 +4,6 @@
     {% block content %}
     <body>
         <h1>List Your Board</h1>
-        {% with messages = get_flashed_messages() %} {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %} {% endwith %}
         <form method="POST" action="{{ url_for('list_board') }}" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             <div>

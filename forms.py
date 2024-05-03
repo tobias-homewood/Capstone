@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, DecimalField, IntegerField, SelectField, TextAreaField, PasswordField
-from wtforms.validators import InputRequired, Email, Length, Optional
+from wtforms.validators import InputRequired, Email, Length, Optional, NumberRange
 from flask_wtf.file import FileField, FileAllowed
 
 # Form for adding a new user
@@ -33,7 +33,7 @@ class BoardForm(FlaskForm):
     width_fraction = SelectField('Width Fraction', choices=[(f'{i}/16', f'{i}/16') for i in range(0, 16)], validators=[InputRequired()])    
     depth_integer = SelectField('Depth Integer', choices=[(str(i), str(i)) for i in [2, 3, 4]], validators=[InputRequired()])
     depth_fraction = SelectField('Depth Fraction', choices=[(f'{i}/16', f'{i}/16') for i in range(0, 16)], validators=[InputRequired()])    
-    volume_litres = IntegerField('Volume (Litres)', validators=[InputRequired()])
+    volume_litres = DecimalField('Volume (Litres)', places=2, rounding=None, validators=[InputRequired()])
     extra_details = TextAreaField('Extra Details', validators=[Length(max=255)])
     main_photo = FileField('Main Photo', validators=[FileAllowed(['jpg', 'png','jpeg']), InputRequired()])
     extra_photos = FileField('Extra Photos', validators=[FileAllowed(['jpg', 'png','jpeg']), Optional()])
@@ -52,6 +52,7 @@ class SearchForm(FlaskForm):
     sell_or_rent = SelectField('Sell or Rent', choices=[('', 'Any'), ('For sale', 'For sale'), ('For rent', 'For rent')], validators=[Optional()])    
     board_location_text = StringField('Board Location', validators=[Optional()])
     board_location_coordinates = StringField('Board Location Coordinates', validators=[Optional()])
+    max_distance = IntegerField('Max Distance (km)', default=50, validators=[Optional(), NumberRange(min=1)])
     delivery_options = SelectField('Collection / Delivery', choices=[('', 'Any'), ('Pick up only', 'Pick up only'), ('Local delivery', 'Local delivery'), ('National delivery', 'National delivery'), ('International delivery', 'International delivery')], validators=[Optional()])    
     model = StringField('Model', validators=[Optional()])
     width_integer = SelectField('Width Integer', choices=[('', 'Any')] + [(str(i), str(i)) for i in range(15, 26)], validators=[Optional()])

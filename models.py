@@ -5,6 +5,7 @@ from sqlalchemy.sql import func
 from sqlalchemy import Table, MetaData, Column, Integer, ForeignKey
 from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import JSON
+from geoalchemy2 import Geometry
 
 # Initialize SQLAlchemy
 db = SQLAlchemy()
@@ -93,15 +94,16 @@ class Board(db.Model):
     sell_or_rent = db.Column(db.String(20))
     board_location_text = db.Column(db.String(255))
     board_location_coordinates = db.Column(db.String(255))
+    board_location_spatial = db.Column(Geometry(geometry_type='POINT', srid=4326))
     delivery_options = db.Column(db.String(50))
     model = db.Column(db.String(255))
     width_integer = db.Column(db.Integer)
-    width_fraction = db.Column(db.String(5))
+    width_fraction = db.Column(db.String(10))
     width_total = db.Column(db.Float)
     depth_integer = db.Column(db.Integer)
-    depth_fraction = db.Column(db.String(5))
+    depth_fraction = db.Column(db.String(10))
     depth_total = db.Column(db.Float)
-    volume_litres = db.Column(db.Integer)
+    volume_litres = db.Column(db.DECIMAL(6, 2))
     extra_details = db.Column(db.String(255))
     main_photo = db.Column(db.Text)  # Main photo URL
     extra_photos = db.Column(JSON)  # Extra photos URLs, stored as a list
@@ -129,6 +131,7 @@ class SearchPreference(db.Model):
     board_type = db.Column(db.String(255))
     condition = db.Column(db.String(50))
     board_location_coordinates = db.Column(db.String(255))
+    board_location_spatial = db.Column(Geometry(geometry_type='POINT', srid=4326))
     max_price = db.Column(db.DECIMAL(10, 2))
     min_price = db.Column(db.DECIMAL(10, 2))
     board_manufacturer = db.Column(db.String(255))
@@ -140,16 +143,16 @@ class SearchPreference(db.Model):
     sell_or_rent = db.Column(db.String(20))
     model = db.Column(db.String(255))
     width_integer = db.Column(db.Integer)
-    width_fraction = db.Column(db.String(5))
+    width_fraction = db.Column(db.String(10))
     min_width = db.Column(db.DECIMAL(10, 2))
     max_width = db.Column(db.DECIMAL(10, 2))
     width_total = db.Column(db.DECIMAL(10, 2))
     depth_integer = db.Column(db.Integer)
-    depth_fraction = db.Column(db.String(5))
+    depth_fraction = db.Column(db.String(10))
     min_depth = db.Column(db.DECIMAL(10, 2))
     max_depth = db.Column(db.DECIMAL(10, 2))
     depth_total = db.Column(db.DECIMAL(10, 2))
-    volume_litres = db.Column(db.Integer)
+    volume_litres = db.Column(db.DECIMAL(6, 2))
     min_volume = db.Column(db.Integer)
     max_volume = db.Column(db.Integer)
     main_photo = db.Column(db.Text)  # Main photo URL

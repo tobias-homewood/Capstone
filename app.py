@@ -15,8 +15,9 @@ from math import radians, cos, sin, asin, sqrt
 import os
 from pprint import pprint
 from urllib.parse import urlparse, urljoin
-from geoalchemy2 import Geometry
-from sqlalchemy import create_engine
+from geoalchemy2 import WKTElement, Geography
+from geoalchemy2.functions import ST_DWithin, ST_MakePoint
+from sqlalchemy import create_engine, cast
 from sqlalchemy.sql import text
 
 # Set the GOOGLE_APPLICATION_CREDENTIALS environment variable
@@ -127,27 +128,25 @@ def create_app():
             # Remove square brackets and split the string into lat and lon
             lon, lat = map(float, form.board_location_coordinates.data.strip('[]').split(','))
             print(f"Form coordinates: {lon}, {lat}")  # Print the coordinates from the form
-            max_distance = 50  # Maximum distance in kilometers
+            if form.max_distance.data is not None:
+                max_distance = form.max_distance.data
+            else:
+                max_distance = 50  # Default value if not provided
 
-            # Fetch all boards
-            boards = Board.query.all()
+            # Create a point geometry from the coordinates
+            point = ST_MakePoint(lon, lat)
 
-            # Filter boards based on distance
-            nearby_boards = []
-            for board in boards:
-                print(f"Board coordinates: {board.board_location_coordinates}")  # Print the coordinates of each board
-                try:
-                    board_lon, board_lat = map(float, board.board_location_coordinates.strip('{}').split(','))
-                    print(f"Stripped and split coordinates: {board_lon}, {board_lat}")
-                    print(f"Haversine formula: {lon}, {lat}, {board_lon}, {board_lat}")  # Print the coordinates after stripping and splitting
-                    if haversine(lon, lat, board_lon, board_lat) <= max_distance:
-                        nearby_boards.append(board)
-                except ValueError:
-                    # Skip this board if its board_location_coordinates is not a valid pair of coordinates
-                    continue
+            # Fetch all boards that are within max_distance of the point
+            boards = Board.query.filter(
+                ST_DWithin(
+                    Board.board_location_spatial,
+                    cast(point, Geography),
+                    max_distance * 1000  # Convert kilometers to meters
+                )
+            ).all()
 
             # Convert the list of nearby boards to a list of their IDs
-            nearby_board_ids = [board.board_id for board in nearby_boards]
+            nearby_board_ids = [board.board_id for board in boards]
 
             # Filter the query by the IDs of the nearby boards
             query = query.filter(Board.board_id.in_(nearby_board_ids))
@@ -360,6 +359,7 @@ def create_app():
 
         return render_template('users/user_profile.html', user=user, form=form, image_url=image_url)
     
+
     @app.route('/list_board', methods=['GET', 'POST'])
     @login_required
     def list_board():
@@ -383,6 +383,19 @@ def create_app():
             # Get the URL of the uploaded main photo
             main_photo_url = f"https://storage.googleapis.com/board-market/{main_photo_filename}"
             
+            # Remove square brackets and split the string into lat and lon
+            lon, lat = map(float, form.board_location_coordinates.data)
+
+            # Create a new board with the form data
+            print(f"Length of board_manufacturer: {len(form.board_manufacturer.data)}")
+            print(f"Length of condition: {len(form.condition.data)}")
+            print(f"Length of sell_or_rent: {len(form.sell_or_rent.data)}")
+            print(f"Length of board_location_text: {len(form.board_location_text.data)}")
+            print(f"Length of delivery_options: {len(form.delivery_options.data)}")
+            print(f"Length of model: {len(form.model.data)}")
+            print(f"Length of extra_details: {len(form.extra_details.data)}")
+            print(f"Length of main_photo_url: {len(main_photo_url)}")
+
             # Create a new board with the form data
             new_board = Board(
                 user_id= current_user.id,
@@ -395,6 +408,7 @@ def create_app():
                 sell_or_rent=form.sell_or_rent.data,
                 board_location_text=form.board_location_text.data,
                 board_location_coordinates=form.board_location_coordinates.data,
+                board_location_spatial=WKTElement(f'POINT({lon} {lat})', srid=4326),
                 delivery_options=form.delivery_options.data,
                 model=form.model.data,
                 width_integer=form.width_integer.data,

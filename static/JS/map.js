@@ -20,6 +20,9 @@ var map = new mapboxgl.Map({
     zoom: 9,
 });
 
+// Get the board location text element from the DOM
+var boardLocationTextElement = document.getElementById('board_location_text');
+
 // Add an event listener for the 'moveend' event on the map
 map.on('moveend', function() {
     // Get the new center of the map after it has been moved
@@ -32,6 +35,11 @@ map.on('moveend', function() {
     var boardLocationElement = document.getElementById('board_location_coordinates');
     if(boardLocationElement) {
         boardLocationElement.value = JSON.stringify(formattedCoordinates);
+    }
+
+    // Update the 'board_location_text' form field with the new location
+    if(boardLocationTextElement) {
+        boardLocationTextElement.value = localStorage.getItem("location_text");
     }
 });
 

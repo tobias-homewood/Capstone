@@ -145,11 +145,11 @@
         </div>
         <div class="content">
         {% with messages = get_flashed_messages() %} {% if messages %}
-        <ul>
+        <div>
             {% for message in messages %}
-            <li>{{ message }}</li>
+            <div>{{ message }}</div>
             {% endfor %}
-        </ul>
+        </div>
         {% endif %} {% endwith %} 
         
         {% block content %}
