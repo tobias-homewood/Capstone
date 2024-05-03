@@ -1,6 +1,9 @@
 -- Drop tables if they exist (for testing purposes)
 DROP TABLE IF EXISTS search_preferences, messages, boards, users, favourites CASCADE;
 
+-- Enable PostGIS extension
+CREATE EXTENSION IF NOT EXISTS postgis;
+
 -- Create Users table
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -27,7 +30,8 @@ CREATE TABLE boards (
     board_length_total INTEGER,
     condition VARCHAR(50),
     sell_or_rent VARCHAR(20),
-    board_location VARCHAR(255),
+    board_location_text VARCHAR(255),
+    board_location_coordinates VARCHAR(255),
     delivery_options VARCHAR(50),
     model VARCHAR(255),
     width_integer INTEGER,
@@ -67,7 +71,8 @@ CREATE TABLE search_preferences (
     user_id INTEGER REFERENCES users(id),
     board_type VARCHAR(255),
     condition VARCHAR(50),
-    board_location VARCHAR(255),
+    board_location_text VARCHAR(255),
+    board_location_coordinates VARCHAR(255),
     max_price DECIMAL,
     min_price DECIMAL,
     board_manufacturer VARCHAR(255),

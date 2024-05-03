@@ -4,10 +4,10 @@
 <h2>Create an account</h2>
 <form method="POST" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
+    {{ form.email.label }} {{ form.email() }}<br>
     {{ form.username.label }} {{ form.username() }}<br>
     {{ form.password.label }} {{ form.password() }}<br>
-    {{ form.email.label }} {{ form.email() }}<br>
-    {{ form.bio.label }} {{ form.bio() }}<br>
+    {{ form.bio.label }} {{ form.bio(placeholder="Feel free to say a bit about yourself") }}<br>
     {{ form.image_file.label }} {{ form.image_file() }}<br>
     <input type="submit" value="Sign Up">
 </form>

@@ -91,7 +91,8 @@ class Board(db.Model):
     board_length_total = db.Column(db.Integer)
     condition = db.Column(db.String(50))
     sell_or_rent = db.Column(db.String(20))
-    board_location = db.Column(db.String(255))
+    board_location_text = db.Column(db.String(255))
+    board_location_coordinates = db.Column(db.String(255))
     delivery_options = db.Column(db.String(50))
     model = db.Column(db.String(255))
     width_integer = db.Column(db.Integer)
@@ -127,7 +128,7 @@ class SearchPreference(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))  # Foreign key referencing 'users' table
     board_type = db.Column(db.String(255))
     condition = db.Column(db.String(50))
-    board_location = db.Column(db.String(255))
+    board_location_coordinates = db.Column(db.String(255))
     max_price = db.Column(db.DECIMAL(10, 2))
     min_price = db.Column(db.DECIMAL(10, 2))
     board_manufacturer = db.Column(db.String(255))

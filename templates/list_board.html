@@ -31,7 +31,10 @@
                 {{ form.sell_or_rent.label }} {{ form.sell_or_rent() }}
             </div>
             <div>
-                {{ form.board_location.label }} {{ form.board_location() }}
+                {{ form.board_location_text.label }} {{ form.board_location_text() }}
+            </div>
+            <div>
+                {{ form.board_location_coordinates.label }} {{ form.board_location_coordinates() }}
             </div>
             <div>
                 {{ form.delivery_options.label }} {{ form.delivery_options() }}
@@ -40,14 +43,14 @@
                 {{ form.model.label }} {{ form.model() }}
             </div>
             <div>
-                <label>Width</label>
+                <label>Width:</label>
                 {{ form.width_integer() }}
-                {{ form.width_fraction() }}
+                {{ form.width_fraction() }} Inches
             </div>
             <div>
-                <label>Depth</label>
+                <label>Depth:</label>
                 {{ form.depth_integer() }}
-                {{ form.depth_fraction() }}
+                {{ form.depth_fraction() }} Inches
             </div>
             <div>
                 {{ form.volume_litres.label }} {{ form.volume_litres() }}

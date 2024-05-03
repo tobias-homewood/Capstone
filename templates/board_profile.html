@@ -1,0 +1,27 @@
+{% extends "index.html" %}
+
+{% block title %}Board Details{% endblock %}
+
+{% block content %}
+    <h2 class="board-profile-title">{{ board.board_manufacturer }} - {{ board.model }}</h2>
+    <div class="board-profile-details">
+        <div class="board-profile-main-photo-container">
+            <img src="{{ board.main_photo }}" alt="Board Image">
+        </div>
+        <div class="board-profile-data">
+            <p>Price: €{{ board.asking_price }}</p>
+            <p>Length: {{ board.board_length_feet }}' {{ board.board_length_inches }}"</p>
+            <p>Volume: {{ board.volume_litres }} L</p>
+            <p>Condition: {{ board.condition }}</p>
+            <p>Sell or Rent: {{ board.sell_or_rent }}</p>
+            <p>Location: {{ board.board_location_text }}</p>
+            <p>Coordinates: {{ board.board_location_coordinates }}</p>
+            <p>Delivery Options: {{ board.delivery_options }}</p>
+            <p>Width: {{ board.width_integer }} {{ convert_decimal_to_fraction(board.width_fraction) }}</p>
+            <p>Depth: {{ board.depth_integer }} {{ convert_decimal_to_fraction(board.depth_fraction) }}</p>
+            <p>Volume: {{ board.volume_litres }} litres</p>
+            <p>Extra Details: {{ board.extra_details }}</p>
+            <p>Added by: <a href="{{ url_for('user_profile', username=board.user.username) }}">{{ board.user.username }}</a></p>
+        </div>
+    </div>
+{% endblock %}

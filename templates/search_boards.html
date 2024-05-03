@@ -12,7 +12,7 @@
             <div class=form-drop-down-container>
                 <div class="left"> <!-- Left side of the form -->
                     {{ form.sell_or_rent.label }} {{ form.sell_or_rent() }}<br />
-                    {{ form.board_location.label }} {{ form.board_location() }}<br />
+                    {{ form.board_location_coordinates.label }} {{ form.board_location_coordinates(id='board_location_coordinates') }}<br />
                     {{ form.board_manufacturer.label }} {{ form.board_manufacturer() }}<br />
                     {{ form.model.label }} {{ form.model() }}<br />
                 </div>
@@ -54,9 +54,10 @@
             <div id="volume-slider" data-min-volume="{{ session['min_volume'] or 0 }}" data-max-volume="{{ session['max_volume'] or 100 }}"></div>
             <input type="hidden" id="min-volume" name="min_volume" value="{{ form.min_volume.data|default(0) }}">
             <input type="hidden" id="max-volume" name="max_volume" value="{{ form.max_volume.data|default(100) }}">
-            
+            <br>
             <div class="button-container">
                 <button class="btn btn-success search" type="submit">Search</button> <!-- Search button -->
+                <button id="reset-button" class="btn btn-secondary" type="button">Reset filters</button> <!-- Reset filters button -->
             </div>        
         </form>
     </div>
@@ -66,41 +67,53 @@
         {% for board in boards %} <!-- Loop through each board in the boards list -->
         <div class="board">
             <div class="board-header">
-                
-                <h2 class="board-title">{{ board.board_manufacturer }} - {{ board.model }}</h2> <!-- Board title -->
-                <div class="board-main-info">
-                    <p class="board-data">€{{ board.asking_price }}</p>
-                    <p class="board-data">Length: {{ board.board_length_feet }}' {{ board.board_length_inches }}"</p> 
+                <div class="board-title-container">
+                    <p id="board-title">{{ board.board_manufacturer }} - {{ board.model }}</p> <!-- Board title -->
                 </div>
-                {% if current_user.id != board.user_id %}
+
+                <div class="board-main-data ">
+                    <p >€{{ board.asking_price }}</p>
+                    <p >{{ board.board_length_feet }}' {{ board.board_length_inches }}"</p> 
+                    <p class="board-title">{{ board.volume_litres }} L</p>
+                </div>
+            </div>
+            <!-- <a href="{{ url_for('board_profile', board_id=board.board_id) }}" class="board-link" style="color: inherit; text-decoration: none;"> -->
+                <div class="board-image-container" data-url="{{ url_for('board_profile', board_id=board.board_id) }}">
+                        <img src="{{ board.main_photo }}" class="board-search board-image" alt="Board Image">
+                    
+                    <!-- Display board data --> 
+                    <div class="board-data-container">
+                        <!-- Display board data --> 
+                        <p class="board-data">Condition: {{ board.condition }}</p>
+                        <p class="board-data">Sell or Rent: {{ board.sell_or_rent }}</p>
+                        <p class="board-data">Location: {{ board.board_location_text }}</p>
+                        <p class="board-data">Coordinates: {{ board.board_location_coordinates }}</p>
+                        <p class="board-data">Delivery Options: {{ board.delivery_options }}</p>
+                        <p class="board-data">Width: {{ board.width_integer }} {{ convert_decimal_to_fraction(board.width_fraction) }}</p>
+                        <p class="board-data">Depth: {{ board.depth_integer }} {{ convert_decimal_to_fraction(board.depth_fraction) }}</p>
+                        <p class="board-data">Volume: {{ board.volume_litres }} litres</p>
+                        <p class="board-data">Extra Details: {{ board.extra_details }}</p>
+                        <p class="board-data">Added by: <a href="{{ url_for('user_profile', username=board.user.username) }}">{{ board.user.username }}</a></p>
+            
+                    </div>
+                    {% if current_user.id != board.user_id %}
                     <!-- Favourite form -->
                     <form class="favourite-form" method="POST" action="{{ url_for('toggle_favourite', board_id=board.board_id) }}" data-board-id="{{ board.board_id }}">
                         {{ form.csrf_token }}
                         <button type="submit" class="btn btn-link p-0 m-0 align-baseline">
-                            <i class="bi {% if board in current_user.favourite_boards %}bi-heart-fill text-red{% else %}bi-heart{% endif %}"></i> <!-- Heart icon, filled if the board is a favourite -->
+                            <i class="heart-search bi {% if board in current_user.favourite_boards %}bi-heart-fill text-red{% else %}bi-heart{% endif %}"></i> <!-- Heart icon, filled if the board is a favourite -->
                         </button>
                     </form>
-                {% endif %}
-                <!-- Delete form -->
-                {% if current_user.id == board.user_id %}
-                    <form class="delete-form" method="POST" action="{{ url_for('delete_board', board_id=board.board_id) }}">
-                        <input type="submit" value="Delete" /> <!-- Delete button -->
+                    {% endif %}
+                    <!-- Delete form -->
+                    <form id="delete-board-temp" method="POST" action="{{ url_for('delete_board', board_id=board.board_id) }}">
+                        {{ form.hidden_tag() }} <!-- CSRF token for form -->
+                        <button type="submit" class="btn btn-link p-0 m-0 align-baseline">
+                            <i class="bi bi-trash trash-temp"></i> <!-- Bin icon -->
+                        </button>
                     </form>
-                {% endif %}
-            </div>
-            <div class="surfboard-search-container">
-                <img src="{{ board.main_photo }}" class="surfboard-search board-image" alt="Board Image">
-            </div>
-            <!-- Display board data --> 
-            <p class="board-data">Condition: {{ board.condition }}</p>
-            <p class="board-data">Sell or Rent: {{ board.sell_or_rent }}</p>
-            <p class="board-data">Location: {{ board.board_location }}</p>
-            <p class="board-data">Delivery Options: {{ board.delivery_options }}</p>
-            <p class="board-data">Width: {{ board.width_integer }} {{ convert_decimal_to_fraction(board.width_fraction) }}</p>
-            <p class="board-data">Depth: {{ board.depth_integer }} {{ convert_decimal_to_fraction(board.depth_fraction) }}</p>
-            <p class="board-data">Volume: {{ board.volume_litres }} litres</p>
-            <p class="board-data">Extra Details: {{ board.extra_details }}</p>
-            <p class="board-data">Added by: <a href="{{ url_for('user_profile', username=board.user.username) }}">{{ board.user.username }}</a></p>
+                </div>  
+            <!-- </a> -->
         </div>
         {% endfor %}
     </div>

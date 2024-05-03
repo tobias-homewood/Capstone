@@ -11,13 +11,29 @@ from flask import Flask, request
 from google.cloud import storage
 import uuid
 import math
+from math import radians, cos, sin, asin, sqrt
 import os
+from pprint import pprint
+from urllib.parse import urlparse, urljoin
+from geoalchemy2 import Geometry
+from sqlalchemy import create_engine
+from sqlalchemy.sql import text
 
 # Set the GOOGLE_APPLICATION_CREDENTIALS environment variable
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'secrets/my_service_account_key.json'
 MAPBOX_API_KEY = 'pk.eyJ1IjoidGhvbWV3b29kIiwiYSI6ImNsdXBueWs5ejA2NHoyanBiM3h5MTFiZjQifQ.6lwwE00ZXTxf8XBXUeCDew'
 
 login_manager = LoginManager()
+login_manager.login_view = 'login'
+
+def is_postgis_installed(uri):
+    engine = create_engine(uri)
+    with engine.connect() as connection:
+        result = connection.execute(text("SELECT EXISTS(SELECT * FROM pg_extension WHERE extname='postgis');"))
+        return result.scalar()
+
+# Usage
+print(is_postgis_installed('postgresql://tobias:element@localhost/boardmarket'))
 
 def upload_blob(file_object, destination_blob_name=None):
     """Uploads a file to the bucket."""
@@ -33,7 +49,6 @@ def upload_blob(file_object, destination_blob_name=None):
 
     blob.upload_from_file(file_object)
 
-    print(f"File uploaded to {destination_blob_name}.")
 
 def download_blob(source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
@@ -43,8 +58,6 @@ def download_blob(source_blob_name, destination_file_name):
     blob = bucket.blob(source_blob_name)
 
     blob.download_to_filename(destination_file_name)
-
-    print(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
 
 def create_app():
     print("Creating app...")
@@ -64,7 +77,7 @@ def create_app():
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///boardmarket'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
-    app.config['SQLALCHEMY_ECHO'] = True
+    app.config['SQLALCHEMY_ECHO'] = False
     app.debug = True
     db.init_app(app)
     print("App created successfully.")
@@ -109,9 +122,35 @@ def create_app():
         if form.sell_or_rent.data:
             query = query.filter(Board.sell_or_rent.ilike(f"%{form.sell_or_rent.data}%"))
 
-        # If board_location is provided, filter the query by board_location
-        if form.board_location.data:
-            query = query.filter(Board.board_location.ilike(f"%{form.board_location.data}%"))
+        # If board_location_coordinates is provided, filter the query by board_location_coordinates
+        if form.board_location_coordinates.data:
+            # Remove square brackets and split the string into lat and lon
+            lon, lat = map(float, form.board_location_coordinates.data.strip('[]').split(','))
+            print(f"Form coordinates: {lon}, {lat}")  # Print the coordinates from the form
+            max_distance = 50  # Maximum distance in kilometers
+
+            # Fetch all boards
+            boards = Board.query.all()
+
+            # Filter boards based on distance
+            nearby_boards = []
+            for board in boards:
+                print(f"Board coordinates: {board.board_location_coordinates}")  # Print the coordinates of each board
+                try:
+                    board_lon, board_lat = map(float, board.board_location_coordinates.strip('{}').split(','))
+                    print(f"Stripped and split coordinates: {board_lon}, {board_lat}")
+                    print(f"Haversine formula: {lon}, {lat}, {board_lon}, {board_lat}")  # Print the coordinates after stripping and splitting
+                    if haversine(lon, lat, board_lon, board_lat) <= max_distance:
+                        nearby_boards.append(board)
+                except ValueError:
+                    # Skip this board if its board_location_coordinates is not a valid pair of coordinates
+                    continue
+
+            # Convert the list of nearby boards to a list of their IDs
+            nearby_board_ids = [board.board_id for board in nearby_boards]
+
+            # Filter the query by the IDs of the nearby boards
+            query = query.filter(Board.board_id.in_(nearby_board_ids))
 
         # If delivery_options is provided, filter the query by delivery_options
         if form.delivery_options.data:
@@ -184,15 +223,36 @@ def create_app():
 
         return str(numerator) + ('' if denominator == 1 else '/' + str(denominator)) + '"'
 
+    def is_safe_url(target):
+        """Check if the URL is safe to redirect to."""
+        ref_url = urlparse(request.host_url)
+        test_url = urlparse(urljoin(request.host_url, target))
+        return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
+    
+    def haversine(lon1, lat1, lon2, lat2):
+        """
+        Calculate the great circle distance in kilometers between two points 
+        on the earth (specified in decimal degrees)
+        """
+        # convert decimal degrees to radians 
+        lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+        # haversine formula 
+        dlon = lon2 - lon1 
+        dlat = lat2 - lat1 
+        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        c = 2 * asin(sqrt(a)) 
+        r = 6371 # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
+        return c * r
+
     @app.template_filter('type')
     def type_filter(value):
         return str(type(value))
 
-    # This route serves the home page
     @app.route('/')
     def index():
         user_id = current_user.id if current_user.is_authenticated else None
-        return render_template('index.html')
+        return render_template('index.html', path=request.path, user_logged_in=current_user.is_authenticated)
 
     @app.route('/signup', methods=["GET", "POST"])
     def signup():
@@ -243,11 +303,18 @@ def create_app():
         return render_template('users/signup.html', form=form)
 
 
+
+
     @app.route('/login', methods=["GET", "POST"])
     def login():
         """Handle user login."""
 
         form = LoginForm()
+        message = request.args.get('message', default=None, type=str)
+        next_page = request.args.get('next', default=None, type=str)
+
+        if message:
+            session['message'] = message
 
         if form.validate_on_submit():
             user = User.authenticate(form.username.data,
@@ -256,19 +323,31 @@ def create_app():
             if user:
                 login_user(user)  # Use flask_login's login_user function
                 flash(f"Hello, {user.username}!", "success")
-                return redirect("/")
+                print(f"next_page: {next_page}")  # Debug print
+                print(f"is_safe_url(next_page): {is_safe_url(next_page)}")  # Debug print
+                if next_page and is_safe_url(next_page):
+                    return redirect(next_page)
+                return redirect(url_for('index'))
 
             flash("Invalid credentials.", 'danger')
+
+        else:
+            if 'message' in session:
+                flash(session['message'], 'info')
+                del session['message']
 
         return render_template('users/login.html', form=form)
 
 
     @app.route('/logout')
     def logout():
-        """Handle logout of user."""
+        """Handle user logout."""
+
+        if 'message' in session:
+            del session['message']
+
         logout_user()
-        flash("You have been logged out!", "success")
-        return redirect("/login")
+        return redirect(url_for('index'))
 
     @app.route('/user/<username>', methods=['GET'])
     def user_profile(username):
@@ -279,17 +358,15 @@ def create_app():
         # The image URL is stored in `user.image_url`
         image_url = user.image_url
 
-        # Print debugging information
-        print(f"Username: {username}")
-        print(f"User: {user}")
-        print(f"Image URL: {image_url}")
-
         return render_template('users/user_profile.html', user=user, form=form, image_url=image_url)
     
     @app.route('/list_board', methods=['GET', 'POST'])
+    @login_required
     def list_board():
         form = BoardForm()
-        print("submitted form")
+        form.board_location_text.data = session.get('location_text', 'Default Location')
+        form.board_location_coordinates.data = session.get('coordinates', 'Default Coordinates')
+
         if form.validate_on_submit():
             width_fraction_decimal = fraction_to_decimal(form.width_fraction.data)
             depth_fraction_decimal = fraction_to_decimal(form.depth_fraction.data)
@@ -316,7 +393,8 @@ def create_app():
                 board_length_total=board_length_total,
                 condition=form.condition.data,
                 sell_or_rent=form.sell_or_rent.data,
-                board_location=form.board_location.data,
+                board_location_text=form.board_location_text.data,
+                board_location_coordinates=form.board_location_coordinates.data,
                 delivery_options=form.delivery_options.data,
                 model=form.model.data,
                 width_integer=form.width_integer.data,
@@ -359,7 +437,6 @@ def create_app():
             if field.data == 'None':
                 field.data = None
 
-        print(f"Form data in search_boards: {form.data}")
         query = Board.query  # start with a base query
         
         # If there's no args in the request or the form is not valid
@@ -376,7 +453,8 @@ def create_app():
             form.min_volume.data = session.get('min_volume')
             form.max_volume.data = session.get('max_volume')
             form.sell_or_rent.data = session.get('sell_or_rent')
-            form.board_location.data = session.get('board_location')
+            form.board_location_text.data = session.get('board_location_text')
+            form.board_location_coordinates.data = session.get('board_location_coordinates')
             form.board_manufacturer.data = session.get('board_manufacturer')
             form.model.data = session.get('model')
             form.condition.data = session.get('condition')
@@ -395,12 +473,14 @@ def create_app():
             session['min_volume'] = form.min_volume.data
             session['max_volume'] = form.max_volume.data
             session['sell_or_rent'] = form.sell_or_rent.data
-            session['board_location'] = form.board_location.data
+            session['board_location_text'] = form.board_location_text.data
+            session['board_location_coordinates'] = form.board_location_coordinates.data
             session['board_manufacturer'] = form.board_manufacturer.data
             session['model'] = form.model.data
             session['condition'] = form.condition.data
             session['delivery_options'] = form.delivery_options.data
             
+
         boards = query.all()  # execute the query
         # Check if the user is authenticated before querying the user's favourites
         if current_user.is_authenticated:
@@ -410,13 +490,18 @@ def create_app():
 
         if request.args and not form.validate():
             flash('Invalid form data...', 'error')
-            print("********************************************************************************")
             print(form.errors)
-            print("********************************************************************************")
-            print(form.min_length.data, form.max_length.data, form.min_price.data, form.max_price.data, form.min_width.data, form.max_width.data, form.min_depth.data, form.max_depth.data, form.min_volume.data, form.max_volume.data)
 
         return render_template('search_boards.html', form=form, boards=boards, favourites=favourites, convert_inches_to_feet=convert_inches_to_feet, convert_decimal_to_fraction=convert_decimal_to_fraction) # pass boards and favourites to the template
 
+    @app.route('/board_profile/<int:board_id>', methods=['GET'])
+    def board_profile(board_id):
+        board = Board.query.get(board_id)
+        if board is None:
+            flash('Board not found.', 'error')
+            return redirect(url_for('index'))
+        return render_template('board_profile.html', board=board, convert_decimal_to_fraction=convert_decimal_to_fraction)
+    
     @app.route('/delete_board/<int:board_id>', methods=['POST'])
     def delete_board(board_id):
         board = Board.query.get(board_id)
@@ -442,13 +527,21 @@ def create_app():
         db.session.commit()
         return jsonify(success=True, action=action)
     
+    from flask import session
+
     @app.route('/update_location', methods=['POST'])
     def update_location():
-        data = request.get_json()
-        current_user.location_text = data['location_text']
-        current_user.coordinates = data['coordinates']
-        db.session.commit()
-        return jsonify({'message': 'Location updated'}), 200
+        try:
+            data = request.get_json()
+            session['location_text'] = data['location_text']
+            session['coordinates'] = data['coordinates']
+            print('Updated location:', data['location_text'])
+            print('Updated coordinates:', data['coordinates'])
+            return jsonify({'message': 'Location updated'}), 200
+        except Exception as e:
+            print('Error updating location:', str(e))
+            print('Request data:', request.data)
+            return jsonify({'message': 'Error updating location', 'error': str(e)}), 400
 
     
     return app
