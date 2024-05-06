@@ -3,66 +3,62 @@
 {% block title %}Search Boards{% endblock %} <!-- Title of the page -->
 
 {% block content %} <!-- Content of the page starts here -->
-    
-    <button id="filters">Show / Hide Filters</button> <!-- Button for showing/hiding filters -->
-
-    <div id="filter-form" style="display: none;"> <!-- Filter form, initially hidden -->
+<button id="filters-show-hide-button">Show / Hide Filters</button> <!-- Button for showing/hiding filters --> 
+<div id="main-search-container">
+    <div id="filter-form"> <!-- Filter form, initially hidden -->
+         
         <form method="GET" action="{{ url_for('search_boards') }}"> <!-- Form action is the search_boards route -->
             {{ form.hidden_tag() }} <!-- CSRF token for form -->
             <div class=form-drop-down-container>
-                <div class="left"> <!-- Left side of the form -->
-                    {{ form.sell_or_rent.label }} {{ form.sell_or_rent() }}<br />
-                    {{ form.board_location_coordinates.label }} {{ form.board_location_coordinates(id='board_location_coordinates') }}<br />
-                    {{ form.max_distance.label }} {{ form.max_distance() }}<br />
-                    {{ form.board_manufacturer.label }} {{ form.board_manufacturer() }}<br />
-                    {{ form.model.label }} {{ form.model() }}<br />
+                <div id="filter-button-container">
+                    <button class="btn btn-success search" type="submit">Search</button> <!-- Search button -->
+                    <button id="reset-button" class="btn btn-secondary" type="button">Reset filters</button> <!-- Reset filters button -->
                 </div>
-                <div class="right"> <!-- Right side of the form -->
-                    {{ form.condition.label }} {{ form.condition() }}<br />
-                    {{ form.delivery_options.label }} {{ form.delivery_options() }}<br />
-                </div>
+                    {{ form.sell_or_rent.label }} {{ form.sell_or_rent() }}
+                    <label id="coordinates_label">{{ form.board_location_coordinates.label }}</label> {{ form.board_location_coordinates(id='board_location_coordinates') }}
+                    {{ form.max_distance.label }} {{ form.max_distance() }}
+                    {{ form.board_manufacturer.label }} {{ form.board_manufacturer() }}
+                    {{ form.model.label }} {{ form.model() }}
+                    {{ form.condition.label }} {{ form.condition() }}
+                    {{ form.delivery_options.label }} {{ form.delivery_options() }}
             </div>
             <!-- The following sections are for price, length, width, depth, and volume filters with sliders -->
             <!-- Each section has a visible label, a slider, and two hidden inputs for the min and max values -->
             <!-- The min and max values are either from the session or default values -->
 
             <!-- Price filter -->
-            <p id="price-value">Price: 0 - 1000</p>
+            <p id="price-value" class = "slider-title">Price</p>
             <div id="price-slider" data-min-price="{{ session['min_price'] or 0 }}" data-max-price="{{ session['max_price'] or 2000 }}"></div>
             <input type="hidden" id="min-price" name="min_price" value="{{ form.min_price.data|default(0) }}">
             <input type="hidden" id="max-price" name="max_price" value="{{ form.max_price.data|default(2000) }}">
             
             <!-- Length filter -->
-            <p id="length-value">Length: 0 - 200</p>
+            <p id="length-value" class = "slider-title">Length</p>
             <div id="length-slider" data-min-length="{{ session['min_length'] or 0 }}" data-max-length="{{ session['max_length'] or 180 }}"></div>
             <input type="hidden" id="min-length" name="min_length" value="{{ form.min_length.data|default(0) }}">
             <input type="hidden" id="max-length" name="max_length" value="{{ form.max_length.data|default(180) }}">
 
             <!-- Width filter -->
-            <p id="width-value">Width: 0 - 100</p>
+            <p id="width-value" class = "slider-title">Width</p>
             <div id="width-slider" data-min-width="{{ session['min_width'] or 0 }}" data-max-width="{{ session['max_width'] or 30 }}"></div>
             <input type="hidden" id="min-width" name="min_width" value="{{ form.min_width.data|default(0) }}">
             <input type="hidden" id="max-width" name="max_width" value="{{ form.max_width.data|default(30) }}">
 
             <!-- Depth filter -->
-            <p id="depth-value">Depth: 0 - 200</p> <!-- Update the range here -->
+            <p id="depth-value" class = "slider-title">Depth</p> 
             <div id="depth-slider" data-min-depth="{{ session['min_depth'] or 0 }}" data-max-depth="{{ session['max_depth'] or 5 }}"></div>
             <input type="hidden" id="min-depth" name="min_depth" value="{{ form.min_depth.data|default(0) }}">
             <input type="hidden" id="max-depth" name="max_depth" value="{{ form.max_depth.data|default(5) }}">
             
             <!-- Volume filter -->
-            <p id="volume-value">Volume: 0 - 100</p>
+            <p id="volume-value" class = "slider-title">Volume</p>
             <div id="volume-slider" data-min-volume="{{ session['min_volume'] or 0 }}" data-max-volume="{{ session['max_volume'] or 100 }}"></div>
             <input type="hidden" id="min-volume" name="min_volume" value="{{ form.min_volume.data|default(0) }}">
             <input type="hidden" id="max-volume" name="max_volume" value="{{ form.max_volume.data|default(100) }}">
-            <br>
-            <div class="button-container">
-                <button class="btn btn-success search" type="submit">Search</button> <!-- Search button -->
-                <button id="reset-button" class="btn btn-secondary" type="button">Reset filters</button> <!-- Reset filters button -->
-            </div>        
+            <br>      
         </form>
     </div>
-
+    
     <!-- Display the boards -->
     <div id="board-container">
         {% for board in boards %} <!-- Loop through each board in the boards list -->
@@ -118,5 +114,5 @@
         </div>
         {% endfor %}
     </div>
-    
+</div>
 {% endblock %} <!-- Content of the page ends here -->

@@ -41,52 +41,51 @@
     </head>
 
     <body data-user-logged-in="{{ current_user.is_authenticated }}">
-        <nav class="navbar navbar-dark fixed-top">
-            <div class="container-fluid">
-                <button
-                    class="navbar-toggler me-auto"
-                    type="button"
-                    data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvasDarkNavbar"
-                    aria-controls="offcanvasDarkNavbar"
-                    aria-label="Toggle navigation"
-                >
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-content">
+        <nav class="navbar navbar-dark">
+            <div id="navbar-container">
+                <div class="navbar-left">
+                    <button
+                        class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasDarkNavbar"
+                        aria-controls="offcanvasDarkNavbar"
+                        aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
                     <div class="navbar-brand-wrapper">
-                        <a
-                            class="navbar-brand ms-auto"
+                        <a class="navbar-brand"
                             href="{{ url_for('index') }}"
-                            >Board Market</a
-                        >
+                            >Board Market</a>
+                            <div id="slogan">Less time searching for boards, more time surfing waves</div>
                     </div>
-                    <div class="navbar-text ms-auto">
-                        <small>
-                            {% if current_user.is_authenticated %} Logged in as:
-                            <a
-                                href="{{ url_for('user_profile', username=current_user.username) }}"
-                                >{{ current_user.username }}</a
-                            >
-                            |
-                            <a href="{{ url_for('logout') }}">Logout</a>
-                            {% else %}
-                            <a href="{{ url_for('login') }}">Login</a> |
-                            <a href="{{ url_for('signup') }}">Create an account</a>
-                            {% endif %}
-                        </small>
-                        <p style="margin: 0">
-                            <span id="displayArea"></span>
-                            <span id="navbarLocation"></span>
-                            <a
-                                href="#mapContainer"
-                                data-bs-toggle="collapse"
-                                role="button"
-                                aria-expanded="false"
-                                aria-controls="mapContainer"
-                                >Change location</a
-                            >
-                        </p>
+                </div>
+                <div class="navbar-content-wrapper">
+                    <div class="navbar-content">
+                        <div class="navbar-text">
+                            <small>
+                                {% if current_user.is_authenticated %} Logged in as:
+                                <a
+                                    href="{{ url_for('user_profile', username=current_user.username) }}"
+                                    >{{ current_user.username }}</a> | <a href="{{ url_for('logout') }}">Logout</a>
+                                {% else %}
+                                <a href="{{ url_for('login') }}">Login</a> |
+                                <a href="{{ url_for('signup') }}">Create an account</a>
+                                {% endif %}
+                            </small>
+                            <p style="margin: 0">
+                                <span id="displayArea"></span>
+                                <span id="navbarLocation"></span>
+                                <a
+                                    href="#mapContainer"
+                                    data-bs-toggle="collapse"
+                                    role="button"
+                                    aria-expanded="false"
+                                    aria-controls="mapContainer"
+                                    >Change location</a
+                                >
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <div
@@ -144,27 +143,27 @@
             </div>
         </div>
         <div class="content">
-        {% with messages = get_flashed_messages() %} {% if messages %}
-        <div>
-            {% for message in messages %}
-            <div>{{ message }}</div>
-            {% endfor %}
-        </div>
-        {% endif %} {% endwith %} 
-        
-        {% block content %}
-        <h5 id="homepage-instructions">
-            <span id="locationText">Enter your location on the map above and then choose an option below.</span>
-        </h5>
-        <div class="option-row">
-            <div class="option-col">
-                <a href="{{ url_for('list_board') }}" class="btn btn-dark option-btn">List a Board</a>
+            {% with messages = get_flashed_messages() %} {% if messages %}
+            <div>
+                {% for message in messages %}
+                <div>{{ message }}</div>
+                {% endfor %}
             </div>
-            <div class="option-col">
-                <a href="{{ url_for('search_boards') }}" class="btn btn-dark option-btn">Search for a board</a>
+            {% endif %} {% endwith %} 
+            
+            {% block content %}
+            <h5 id="homepage-instructions">
+                <span id="locationText">Enter your location on the map above and then choose an option below.</span>
+            </h5>
+            <div class="option-row">
+                <div class="option-col">
+                    <a href="{{ url_for('list_board') }}" class="btn btn-dark option-btn">List a Board</a>
+                </div>
+                <div class="option-col">
+                    <a href="{{ url_for('search_boards') }}" class="btn btn-dark option-btn">Search for a board</a>
+                </div>
             </div>
-        </div>
-        {% endblock %}
+            {% endblock %}
         </div>
         <script src="{{ url_for('static', filename='js/main.js') }}"></script>
         <script src="{{ url_for('static', filename='js/map.js') }}"></script>

@@ -264,6 +264,7 @@ $(document).ready(function () {
 
         // Reset the other inputs
         $("#sell_or_rent").prop('selectedIndex', 0);
+        $("#max_distance").val('50');
         $("#board_manufacturer").val('');
         $("#model").val('');
         $("#condition").prop('selectedIndex', 0);
@@ -274,7 +275,7 @@ $(document).ready(function () {
 // This block of code is responsible for handling the click event on the filters element.
 // When the filters element is clicked, the display style of the filter-form is toggled between 'none' and 'block'.
 document.addEventListener("DOMContentLoaded", (event) => {
-    var filtersElement = document.getElementById("filters");
+    var filtersElement = document.getElementById("filters-show-hide-button");
     if (filtersElement) {
         filtersElement.addEventListener("click", function () {
             var form = document.getElementById("filter-form");

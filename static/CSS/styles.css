@@ -1,8 +1,5 @@
 /* General body styling */
 body{
-    padding-top: 80px;
-    padding-left: 15px;
-    padding-right: 15px;
     background-color:rgb(238, 238, 238) !important;
 }
 
@@ -15,29 +12,49 @@ h1{
 }
 
 /* Navbar styles */
-.navbar{
-    padding: 2px !important;
+.navbar {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
     background-color: #343a40;
 }
+
+
+#navbar-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%; /* Full width */
+    padding-right: var(--bs-gutter-x, .75rem);
+    padding-left: var(--bs-gutter-x, .75rem);
+    margin-right: auto;
+    margin-left: auto;
+    flex-wrap: wrap
+}
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-content-wrapper {
+    display: flex;
+    justify-content: flex-end;
+}
+
 .navbar-content {
+    display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Align items to the end */
-    padding: 5px !important;
+    align-items: flex-end;
+    min-width: 200px;
 }
+
 .navbar-brand {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 5px;
+    padding: 0 5px;
 }
-.navbar-text {
-    font-size: 0.8em; /* Adjust to change the text size */
-    order: 2; /* Move the text to the end of the flex container */
-    padding: 5px !important;
-    text-align: right;
-}
-.navbar-brand-wrapper {
-    width: 100%; /* Make the wrapper take up the full width of the parent */
+#slogan{
+    font-size: 0.5em;
+    color: white;
+    padding: 0 5px;
 }
 .navbar-toggler {
     width: 30px; /* Adjust the width of the button */
@@ -47,8 +64,18 @@ h1{
     align-items: center; /* Add this */
     justify-content: center; /* Add this */
 }
+.navbar-text {
+    font-size: 0.8em;
+    padding: 5px !important;
+    text-align: right;
+}
+.navbar-brand-wrapper {
+    padding: 5px; 
+}
+
 .navbar-toggler-icon {
     background-image: none !important;
+    width: 50px;
 }
 .navbar-toggler::before {
     content: '☰';
@@ -77,6 +104,11 @@ h1{
 
 #homepage-instructions{
     text-align: center;
+}
+
+/* Styling for the main container */
+#main-search-container {
+    display: flex;
 }
 
 /* Styling for the board container */
@@ -303,6 +335,7 @@ h1{
 
 .content{
     clear: both;
+    padding: 10px;
 }
 
 .option-row {
@@ -321,4 +354,65 @@ h1{
     margin: 0 auto;
     display: block;
     font-size: 15px !important;
+}
+
+#filters-show-hide-button{
+    font-size: 0.6em;
+}
+
+/* Style the filter form */
+#filter-form {
+    width: 160px; /* Reduce the width of the form */
+    min-width: 160px;
+}
+
+/* Style the form elements */
+#filter-form input,
+#filter-form select {
+    width: 90%; /* Reduce the width of the form elements */ /* Reduce the spacing between form elements */
+    font-size: 0.6em;
+    display: block;
+}
+
+/* Style the form labels */
+#filter-form label {
+    font-size: 0.6em; /* Reduce the size of the labels */
+    display: block;
+}
+
+/* Style the sliders */
+#price-slider,
+#length-slider,
+#width-slider,
+#depth-slider,
+#volume-slider {
+    width: 90%; /* Reduce the width of the sliders */
+    font-size: 0.6em;
+}
+/* Style the buttons */
+#filter-button-container {
+    display: flex; /* Add this line */
+    justify-content: center; /* This will center the buttons horizontally */
+    align-items: center; /* This will center the buttons vertically */
+    margin-top: 10px; /* Add some spacing above the buttons */
+    width: 100%;
+}
+
+#filter-button-container button {
+    width: 50%; /* Reduce the width of the buttons */
+    margin-right: 5%; /* Add some spacing between the buttons */
+    margin: 2px;
+    font-size: 0.6em;
+    padding: 3px;
+    background-color: #343a40;
+}
+
+.slider-title {
+    margin-bottom: 0rem;
+    font-size: 0.6em;
+}
+
+#board_location_coordinates,
+#coordinates_label {
+    display: none !important;
 }
