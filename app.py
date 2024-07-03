@@ -19,10 +19,12 @@ from geoalchemy2 import WKTElement, Geography
 from geoalchemy2.functions import ST_DWithin, ST_MakePoint
 from sqlalchemy import create_engine, cast
 from sqlalchemy.sql import text
+from dotenv import load_dotenv
 
 # Set the GOOGLE_APPLICATION_CREDENTIALS environment variable
+load_dotenv(dotenv_path='secrets/keys.env')
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'secrets/my_service_account_key.json'
-MAPBOX_API_KEY = 'pk.eyJ1IjoidGhvbWV3b29kIiwiYSI6ImNsdXBueWs5ejA2NHoyanBiM3h5MTFiZjQifQ.6lwwE00ZXTxf8XBXUeCDew'
+MAPBOX_API_KEY = os.getenv('MAPBOX_API_KEY')
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
@@ -53,7 +55,7 @@ def upload_blob(file_object, destination_blob_name=None):
 
 def download_blob(source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
-    bucket_name = "board-market"  # Update with your bucket name
+    bucket_name = "board-market"  
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
@@ -188,7 +190,7 @@ def create_app():
         if fraction == '':
             return None
         numerator, denominator = map(int, fraction.split('/'))
-        return numerator / denominator
+        return round(numerator / denominator, 10)
 
     # This function converts feet to inches
     def convert_feet_to_inches(feet):
@@ -302,8 +304,6 @@ def create_app():
         return render_template('users/signup.html', form=form)
 
 
-
-
     @app.route('/login', methods=["GET", "POST"])
     def login():
         """Handle user login."""
@@ -370,7 +370,7 @@ def create_app():
         if form.validate_on_submit():
             width_fraction_decimal = fraction_to_decimal(form.width_fraction.data)
             depth_fraction_decimal = fraction_to_decimal(form.depth_fraction.data)
-            board_length_total = form.board_length_feet.data * 12 + form.board_length_inches.data
+            board_length_total = int(form.board_length_feet.data) * 12 + int(form.board_length_inches.data)
             # Calculate total width and depth
             width_total = float(form.width_integer.data) + (width_fraction_decimal if width_fraction_decimal else 0)
             depth_total = float(form.depth_integer.data) + (depth_fraction_decimal if depth_fraction_decimal else 0)
@@ -383,18 +383,19 @@ def create_app():
             # Get the URL of the uploaded main photo
             main_photo_url = f"https://storage.googleapis.com/board-market/{main_photo_filename}"
             
+            # Get the extra photos from the form
+            extra_photo_files = request.files.getlist('extra_photos')
+            extra_photo_urls = []
+            for extra_photo_file in extra_photo_files:
+                extra_photo_filename = secure_filename(extra_photo_file.filename)
+                # Upload the extra photo to Google Cloud Storage
+                upload_blob(extra_photo_file, extra_photo_filename)
+                # Get the URL of the uploaded extra photo
+                extra_photo_url = f"https://storage.googleapis.com/board-market/{extra_photo_filename}"
+                extra_photo_urls.append(extra_photo_url)
+            
             # Remove square brackets and split the string into lat and lon
             lon, lat = map(float, form.board_location_coordinates.data)
-
-            # Create a new board with the form data
-            print(f"Length of board_manufacturer: {len(form.board_manufacturer.data)}")
-            print(f"Length of condition: {len(form.condition.data)}")
-            print(f"Length of sell_or_rent: {len(form.sell_or_rent.data)}")
-            print(f"Length of board_location_text: {len(form.board_location_text.data)}")
-            print(f"Length of delivery_options: {len(form.delivery_options.data)}")
-            print(f"Length of model: {len(form.model.data)}")
-            print(f"Length of extra_details: {len(form.extra_details.data)}")
-            print(f"Length of main_photo_url: {len(main_photo_url)}")
 
             # Create a new board with the form data
             new_board = Board(
@@ -420,16 +421,14 @@ def create_app():
                 volume_litres=form.volume_litres.data,
                 extra_details=form.extra_details.data,
                 main_photo=main_photo_url,  # Add main_photo URL to the board
-                extra_photos=form.extra_photos.data  # Add extra_photos to the board
+                extra_photos=extra_photo_urls  # Add extra_photos URLs to the board
             )
             # Add the new board to the database session and commit it
             db.session.add(new_board)
             db.session.commit()
             flash('Board listed successfully!', 'success')
-            print("valid form")
             return redirect(url_for('index'))
         else:
-            print("not valid")
             print(form.errors)
         return render_template('list_board.html', form=form)
 
@@ -514,6 +513,12 @@ def create_app():
         if board is None:
             flash('Board not found.', 'error')
             return redirect(url_for('index'))
+        
+         # Print the URLs of the extra photos
+        if board.extra_photos:
+            for photo in board.extra_photos:
+                print(photo)
+
         return render_template('board_profile.html', board=board, convert_decimal_to_fraction=convert_decimal_to_fraction)
     
     @app.route('/delete_board/<int:board_id>', methods=['POST'])

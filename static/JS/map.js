@@ -11,7 +11,7 @@ mapboxgl.accessToken = mapElement.dataset.mapboxApiKey;
 var savedCoordinates = localStorage.getItem("coordinates");
 
 // Parse the coordinates or use default values if they are not available
-var coordinates = savedCoordinates ? JSON.parse(savedCoordinates) : [-74.5, 40];
+var coordinates = savedCoordinates ? JSON.parse(savedCoordinates) : [-9.139826353791456, 38.72235750702547];
 
 var map = new mapboxgl.Map({
     container: "map",
@@ -21,7 +21,7 @@ var map = new mapboxgl.Map({
 });
 
 // Get the board location text element from the DOM
-var boardLocationTextElement = document.getElementById('board_location_text');
+var boardLocationTextElement = document.getElementById('board-location-text');
 
 // Add an event listener for the 'moveend' event on the map
 map.on('moveend', function() {

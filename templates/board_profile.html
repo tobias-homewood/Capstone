@@ -3,25 +3,55 @@
 {% block title %}Board Details{% endblock %}
 
 {% block content %}
-    <h2 class="board-profile-title">{{ board.board_manufacturer }} - {{ board.model }}</h2>
-    <div class="board-profile-details">
-        <div class="board-profile-main-photo-container">
-            <img src="{{ board.main_photo }}" alt="Board Image">
+<div class="board-profile-details d-flex">
+    <div class="images-container">
+        <div class="extra-images-container">
+            <div class="extra-images">
+                {% if board.extra_photos %}
+                    <img class="extra-image" src="{{ board.main_photo }}" alt="Main Board Image">
+                    {% for photo in board.extra_photos %}  
+                        <img class="extra-image" src="{{ photo }}" alt="Extra Board Image" data-target="#carouselExampleIndicators" data-slide-to="{{ loop.index0 }}">
+                    {% endfor %}
+                {% endif %}
+            </div>
         </div>
-        <div class="board-profile-data">
-            <p>Price: €{{ board.asking_price }}</p>
-            <p>Length: {{ board.board_length_feet }}' {{ board.board_length_inches }}"</p>
-            <p>Volume: {{ board.volume_litres }} L</p>
-            <p>Condition: {{ board.condition }}</p>
-            <p>Sell or Rent: {{ board.sell_or_rent }}</p>
-            <p>Location: {{ board.board_location_text }}</p>
-            <p>Coordinates: {{ board.board_location_coordinates }}</p>
-            <p>Delivery Options: {{ board.delivery_options }}</p>
-            <p>Width: {{ board.width_integer }} {{ convert_decimal_to_fraction(board.width_fraction) }}</p>
-            <p>Depth: {{ board.depth_integer }} {{ convert_decimal_to_fraction(board.depth_fraction) }}</p>
-            <p>Volume: {{ board.volume_litres }} litres</p>
-            <p>Extra Details: {{ board.extra_details }}</p>
-            <p>Added by: <a href="{{ url_for('user_profile', username=board.user.username) }}">{{ board.user.username }}</a></p>
+        <div class="carousel-container">
+            <div id="carouselExampleIndicators" class="carousel slide">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img class="carousel-image" src="{{ board.main_photo }}" alt="Main Board Image">
+                    </div>
+                    {% if board.extra_photos %}
+                        {% for photo in board.extra_photos %}
+                            <div class="carousel-item">
+                                <img class="carousel-image" src="{{ photo }}" alt="Extra Board Image">
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
         </div>
     </div>
+    <div class="board-profile-data">
+        <h2 class="board-profile-title">{{ board.board_manufacturer }} - {{ board.model }}</h2>
+        <p>{{ board.sell_or_rent }} - €{{ board.asking_price }}</p>
+        <p>Length: {{ board.board_length_feet }}' {{ board.board_length_inches }}"</p>
+        <p>Volume: {{ board.volume_litres }} L</p>
+        <p>Width: {{ board.width_integer }} {{ convert_decimal_to_fraction(board.width_fraction) }}</p>
+        <p>Depth: {{ board.depth_integer }} {{ convert_decimal_to_fraction(board.depth_fraction) }}</p>
+        <p>Condition: {{ board.condition }}</p>
+        <p>Location: {{ board.board_location_text }}</p>
+        <p>Delivery Options: {{ board.delivery_options }}</p>
+        <p>Extra Details: {{ board.extra_details }}</p>
+        <p>Added by: <a href="{{ url_for('user_profile', username=board.user.username) }}">{{ board.user.username }}</a></p>
+    </div>
+</div>
 {% endblock %}

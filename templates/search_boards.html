@@ -15,7 +15,8 @@
                     <button id="reset-button" class="btn btn-secondary" type="button">Reset filters</button> <!-- Reset filters button -->
                 </div>
                     {{ form.sell_or_rent.label }} {{ form.sell_or_rent() }}
-                    <label id="coordinates_label">{{ form.board_location_coordinates.label }}</label> {{ form.board_location_coordinates(id='board_location_coordinates') }}
+                    <label id="coordinates_label" style="display: none;">{{ form.board_location_coordinates.label }}</label> 
+                    {{ form.board_location_coordinates(id='board_location_coordinates', style="display: none;") }}
                     {{ form.max_distance.label }} {{ form.max_distance() }}
                     {{ form.board_manufacturer.label }} {{ form.board_manufacturer() }}
                     {{ form.model.label }} {{ form.model() }}
@@ -64,14 +65,20 @@
         {% for board in boards %} <!-- Loop through each board in the boards list -->
         <div class="board">
             <div class="board-header">
-                <div class="board-title-container">
-                    <p id="board-title">{{ board.board_manufacturer }} - {{ board.model }}</p> <!-- Board title -->
+                <div class="board-title-price">
+                    <div class="price-details">
+                        <p class="for-sale-rent {{ 'sale' if board.sell_or_rent == 'For sale' else 'rent' }}">{{board.sell_or_rent}}</p>
+                    </div>
+                    <div class="board-title-container">
+                        <p class="board-manufacturer">{{ board.board_manufacturer }}</p> <!-- Board title -->
+                        <p class="board-model">{{ board.model }}</p>
+                    </div>
                 </div>
 
-                <div class="board-main-data ">
+                <div class="board-measurements ">
                     <p >€{{ board.asking_price }}</p>
                     <p >{{ board.board_length_feet }}' {{ board.board_length_inches }}"</p> 
-                    <p class="board-title">{{ board.volume_litres }} L</p>
+                    <p >{{ board.volume_litres }} L</p>
                 </div>
             </div>
             <!-- <a href="{{ url_for('board_profile', board_id=board.board_id) }}" class="board-link" style="color: inherit; text-decoration: none;"> -->
@@ -81,14 +88,12 @@
                     <!-- Display board data --> 
                     <div class="board-data-container">
                         <!-- Display board data --> 
+                        <p class="board-data">Width: {{ board.width_integer }} {{ convert_decimal_to_fraction(board.width_fraction) }}</p>
+                        <p class="board-data">Depth: {{ board.depth_integer }} {{ convert_decimal_to_fraction(board.depth_fraction) }}</p>
                         <p class="board-data">Condition: {{ board.condition }}</p>
-                        <p class="board-data">Sell or Rent: {{ board.sell_or_rent }}</p>
                         <p class="board-data">Location: {{ board.board_location_text }}</p>
                         <p class="board-data">Coordinates: {{ board.board_location_coordinates }}</p>
                         <p class="board-data">Delivery Options: {{ board.delivery_options }}</p>
-                        <p class="board-data">Width: {{ board.width_integer }} {{ convert_decimal_to_fraction(board.width_fraction) }}</p>
-                        <p class="board-data">Depth: {{ board.depth_integer }} {{ convert_decimal_to_fraction(board.depth_fraction) }}</p>
-                        <p class="board-data">Volume: {{ board.volume_litres }} litres</p>
                         <p class="board-data">Extra Details: {{ board.extra_details }}</p>
                         <p class="board-data">Added by: <a href="{{ url_for('user_profile', username=board.user.username) }}">{{ board.user.username }}</a></p>
             

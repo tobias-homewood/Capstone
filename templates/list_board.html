@@ -1,66 +1,78 @@
 {% extends "index.html" %}
 
-    {% block title %}Search Boards{% endblock %}
-    {% block content %}
-    <body>
-        <h1>List Your Board</h1>
-        <form method="POST" action="{{ url_for('list_board') }}" enctype="multipart/form-data">
+{% block title %}List Boards{% endblock %}
+{% block content %}
+<body>
+    <div id="list-board-title">List Your Board</div>
+    <div id="list-board-form-container">
+        <form id="list-board-form" method="POST" action="{{ url_for('list_board') }}" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
-            <div>
-                {{ form.asking_price.label }} {{ form.asking_price() }}
+            <div class="list-board-container">
+                <label class="list-board-label">{{ form.board_location_text.label }}</label>
+                <div class="list-board-input">{{ form.board_location_text(id='board-location-text', readonly=True) }}</div>
             </div>
-            <div>
-                {{ form.board_manufacturer.label }} {{ form.board_manufacturer() }}
+            <div class="list-board-container">
+                <label class="list-board-label">{{ form.asking_price.label }}</label>
+                <div class="list-board-input">{{ form.asking_price() }}</div>
             </div>
-            <div>
-                <label>Board Length</label>
-                {{ form.board_length_feet() }} Feet
-                {{ form.board_length_inches() }} Inches
+            <div class="list-board-container">
+                <label class="list-board-label">{{ form.board_manufacturer.label }}</label>
+                <div class="list-board-input">{{ form.board_manufacturer() }}</div>
             </div>
-            <div>
-                {{ form.condition.label }} {{ form.condition() }}
+            <div class="list-board-container">
+                <label class="list-board-label">{{ form.model.label }}</label>
+                <div class="list-board-input">{{ form.model() }}</div>
             </div>
-            <div>
-                {{ form.sell_or_rent.label }} {{ form.sell_or_rent() }}
+            <div class="list-board-container">
+                <label class="list-board-label">{{ form.condition.label }}</label>
+                <div class="list-board-input">{{ form.condition() }}</div>
             </div>
-            <div>
-                {{ form.board_location_text.label }} {{ form.board_location_text() }}
+            <div class="list-board-container">
+                <label class="list-board-label">{{ form.sell_or_rent.label }}</label>
+                <div class="list-board-input">{{ form.sell_or_rent() }}</div>
             </div>
-            <div>
-                {{ form.board_location_coordinates.label }} {{ form.board_location_coordinates() }}
+            <div class="list-board-container" id="board-location-coordinates-form">
+                <label id="board-location-coordinates-label" class="list-board-label">{{ form.board_location_coordinates.label }}</label>
+                <div id="board-location-coordinates-input" class="list-board-input">{{ form.board_location_coordinates() }}</div>
             </div>
-            <div>
-                {{ form.delivery_options.label }} {{ form.delivery_options() }}
+            <div class="list-board-container">
+                <label class="list-board-label">{{ form.delivery_options.label }}</label>
+                <div class="list-board-input">{{ form.delivery_options() }}</div>
             </div>
-            <div>
-                {{ form.model.label }} {{ form.model() }}
+            <div class="list-board-container">
+                <label class="list-board-label">Board Length</label>
+                <div class="list-board-input">{{ form.board_length_feet() }} Feet {{ form.board_length_inches() }} Inches</div>
             </div>
-            <div>
-                <label>Width:</label>
-                {{ form.width_integer() }}
-                {{ form.width_fraction() }} Inches
+            <div class="list-board-container">
+                <label class="list-board-label">Width:</label>
+                <div class="list-board-input">{{ form.width_integer() }} {{ form.width_fraction() }} Inches</div>
             </div>
-            <div>
-                <label>Depth:</label>
-                {{ form.depth_integer() }}
-                {{ form.depth_fraction() }} Inches
+            <div class="list-board-container">
+                <label class="list-board-label">Depth:</label>
+                <div class="list-board-input">{{ form.depth_integer() }} {{ form.depth_fraction() }} Inches</div>
             </div>
-            <div>
-                {{ form.volume_litres.label }} {{ form.volume_litres() }}
+            <div class="list-board-container">
+                <label class="list-board-label">{{ form.main_photo.label }}</label>
+                <div class="list-board-input">{{ form.main_photo() }}</div>
             </div>
-            <div>
-                {{ form.extra_details.label }} {{ form.extra_details() }}
+            <div class="list-board-container">
+                <label class="list-board-label">{{ form.extra_photos.label }}</label>
+                <div class="list-board-input">{{ form.extra_photos(multiple=True) }}</div>
             </div>
-            <div>
-                {{ form.main_photo.label }} {{ form.main_photo() }}
+            <div class="list-board-container">
+                <label class="list-board-label">{{ form.volume_litres.label }}</label>
+                <div class="list-board-input">{{ form.volume_litres() }}</div>
             </div>
-            <div>
-                {{ form.extra_photos.label }} {{ form.extra_photos() }}
+            <div class="list-board-container">
+                <label class="list-board-label">{{ form.extra_details.label }}</label>
+                <div class="list-board-input">{{ form.extra_details() }}</div>
             </div>
-            <div>
+            
+            <div class="list-board-container">
                 <button type="submit">Submit</button>
             </div>
         </form>
-    </body>
-    {% endblock %}
+    </div>
+</body>
+{% endblock %}
 </html>

@@ -287,17 +287,44 @@ document.addEventListener("DOMContentLoaded", (event) => {
         });
     }
 });
-
+// This function navigates to a URL for the board that is stored in 'data-url' attribute when an element with class 'board-image-container' is clicked.
 document.querySelectorAll('.board-image-container').forEach(function(element) {
     element.addEventListener('click', function() {
         var url = this.getAttribute('data-url');
         window.location.href = url;
+
+
     });
 });
 
 $(document).ready(function() {
-    // Attach a click event handler to the heart icon
     $(".favourite-form button, #delete-board-temp button").on("click", function(e) {
-        e.stopPropagation();  // Stop the event from propagating up to the board-image-container
+        e.stopPropagation();
     });
 });
+
+// This function changes the main image to the one clicked in the 'extra-image' class.
+$(document).ready(function(){
+    $(".extra-image").click(function(){
+        var newSrc = $(this).attr("src");
+        var index = $(this).index();
+
+        // Remove the 'active' class from the current active carousel item
+        $(".carousel-item.active").removeClass("active");
+
+        // Change the 'src' attribute of the carousel image at the same index as the clicked extra image
+        var carouselImage = $(".carousel-item").eq(index).find(".carousel-image");
+        carouselImage.attr("src", newSrc);
+
+        // Add the 'active' class to the carousel item at the same index as the clicked extra image
+        $(".carousel-item").eq(index).addClass("active");
+    });
+});
+
+// This function is used on the list board form to direct users to where they can change the location
+var boardLocationText = document.getElementById('board-location-text');
+
+boardLocationText.addEventListener('click', function() {
+    alert('Change your location in the top right of the page');
+});
+
